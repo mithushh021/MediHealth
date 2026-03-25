@@ -1,3 +1,4 @@
+// Lead Clinical Documentation Microservice: Kanzurrizk Rihan
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
