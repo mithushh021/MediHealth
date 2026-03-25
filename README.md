@@ -1,9 +1,7 @@
 # MediHealth Clinical Information System
 
 ## Assignment
-IT4020 Modern Topics in IT
-Assignment 2 (Microservices Architecture)
-Year 4 Semester 2
+IT4020 Modern Topics in IT ~ Assignment 2  (Microservices Architecture) ~Year 4 Semester 2
 
 ## Project Executive Summary
 The MediHealth Clinical Portal is a comprehensive medical management system built using a Microservices Architecture. The purpose of this system is to provide a robust and scalable platform for managing patient records, medical appointments, clinical staff availability, and electronic prescriptions. The system ensures high data integrity, professional documentation output, and role based access control for administrators, doctors, and patients.
