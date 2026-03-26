@@ -1,0 +1,18 @@
+{
+  "name": "medihealth",
+  "version": "1.0.0",
+  "description": "MediHealth Microservices System",
+  "scripts": {
+    "start": "concurrently \"npm run start:gateway\" \"npm run start:patient\" \"npm run start:doctor\" \"npm run start:appointment\" \"npm run start:prescription\" \"npm run start:frontend\"",
+    "start:gateway": "cd api-gateway && npm start",
+    "start:patient": "cd patient-service && npm start",
+    "start:doctor": "cd doctor-service && npm start",
+    "start:appointment": "cd appointment-service && npm start",
+    "start:prescription": "cd prescription-service && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd api-gateway && npm install && cd ../patient-service && npm install && cd ../doctor-service && npm install && cd ../appointment-service && npm install && cd ../prescription-service && npm install && cd ../frontend && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
