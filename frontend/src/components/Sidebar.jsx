@@ -69,7 +69,7 @@ function Sidebar() {
         {user.role === 'admin' && (
           <>
             <NavLink to="/doctors" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
-              <UserRoundCog size={20} /> Doctor Roster
+              <UserRoundCog size={20} /> Doctor Records
             </NavLink>
             <NavLink to="/user-management" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
               <Shield size={20} /> Doctor Login Approval
@@ -79,12 +79,12 @@ function Sidebar() {
 
         {user.role === 'admin' && (
           <NavLink to="/patients" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
-             <Users size={20} /> Patient Files
+             <Users size={20} /> Patients Records
           </NavLink>
         )}
 
         <NavLink to="/appointments" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')} style={{position: 'relative'}}>
-          <CalendarCheck size={20} /> {user.role === 'admin' ? 'Scheduling' : 'Appointments'}
+          <CalendarCheck size={20} /> {user.role === 'admin' ? 'Appointment Records' : 'Appointments'}
           {user.role === 'patient' && rejectedCount > 0 && (
             <span style={{
               position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
@@ -96,7 +96,7 @@ function Sidebar() {
         </NavLink>
         
         <NavLink to="/prescriptions" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')} style={{position: 'relative'}}>
-          <FileText size={20} /> {user.role === 'admin' ? 'Prescriptions' : 'Medical Records'}
+          <FileText size={20} /> {user.role === 'admin' ? 'Prescriptions Records' : 'Medical Records'}
           {user.role === 'patient' && prescCount > 0 && (
             <span style={{
               position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',

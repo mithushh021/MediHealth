@@ -10,6 +10,8 @@ function Prescriptions() {
   const [patients, setPatients] = useState([]);
   const [formData, setFormData] = useState({ patientId: '', doctorId: '', medName: '', dosage: '', frequency: '', duration: '', notes: '' });
   const [printingDoc, setPrintingDoc] = useState(null); // For PDF/Print view
+  const [editingId, setEditingId] = useState(null);
+  const [deleteId, setDeleteId] = useState(null); // ID for custom delete modal
 
 
   const fetchPrescriptions = async () => {
@@ -129,24 +131,64 @@ function Prescriptions() {
         }]
       };
 
-      const res = await fetch('http://localhost:5000/prescriptions', {
-        method: 'POST',
+      const url = editingId 
+        ? `http://localhost:5000/prescriptions/${editingId}`
+        : 'http://localhost:5000/prescriptions';
+      
+      const method = editingId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
 
       if (res.ok) {
-        toast.success('Prescription record created successfully!');
+        toast.success(editingId ? 'Prescription updated!' : 'Prescription created!');
         setFormData({ patientId: '', doctorId: '', medName: '', dosage: '', frequency: '', duration: '', notes: '' });
+        setEditingId(null);
         fetchPrescriptions();
       } else {
         const errData = await res.json();
-        toast.error(`Failed to create prescription: ${errData.message || 'Server error'}`);
+        toast.error(`Operation failed: ${errData.message || 'Server error'}`);
       }
     } catch (err) { 
       console.error(err); 
-      toast.error("Network Error: Could not reach the prescription service.");
+      toast.error("Network Error: Could not reach the service.");
     }
+  };
+
+  const handleEdit = (p) => {
+    setEditingId(p._id);
+    const med = p.medications[0] || {};
+    setFormData({
+      patientId: p.patientId,
+      doctorId: p.doctorId,
+      medName: med.name || '',
+      dosage: med.dosage || '',
+      frequency: med.frequency || '',
+      duration: med.duration || '',
+      notes: p.notes || ''
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      const res = await fetch(`http://localhost:5000/prescriptions/${deleteId}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success('Prescription deleted.');
+        fetchPrescriptions();
+      } else {
+        toast.error('Failed to delete.');
+      }
+    } catch (err) { console.error(err); }
+    setDeleteId(null);
   };
 
   return (
@@ -174,7 +216,7 @@ function Prescriptions() {
 
       {user.role !== 'patient' && (
         <div className="form-card">
-          <h2 style={{marginTop: 0, marginBottom: '20px'}}>Issue Prescription</h2>
+          <h2 style={{marginTop: 0, marginBottom: '20px'}}>{editingId ? 'Edit Prescription' : 'Issue Prescription'}</h2>
           <form onSubmit={handleSubmit} className="form-grid">
             <div className="form-group">
               <label>Select Patient</label>
@@ -234,7 +276,20 @@ function Prescriptions() {
               <label>Doctor Notes</label>
               <textarea rows="3" placeholder="Additional instructions (e.g. take after meals)" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})}></textarea>
             </div>
-            <button type="submit" className="btn full">Create Record</button>
+            <div className="form-group full" style={{display: 'flex', gap: '10px'}}>
+              <button type="submit" className="btn" style={{flex: 1}}>{editingId ? 'Update Record' : 'Create Record'}</button>
+              {editingId && (
+                <button 
+                  type="button" 
+                  className="btn" 
+                  style={{background: '#94a3b8'}}
+                  onClick={() => {
+                    setEditingId(null);
+                    setFormData({ patientId: '', doctorId: '', medName: '', dosage: '', frequency: '', duration: '', notes: '' });
+                  }}
+                >Cancel</button>
+              )}
+            </div>
           </form>
         </div>
       )}
@@ -286,11 +341,27 @@ function Prescriptions() {
                 </td>
                 <td style={{fontSize: '0.9rem', color: '#64748b', lineHeight: '1.4'}}>{p.notes || 'No additional instructions.'}</td>
                 <td>
-                   <button 
-                     onClick={() => downloadPDF(p)}
-                     className="btn"
-                     style={{padding: '6px 12px', fontSize: '0.8rem', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '6px'}}
-                   >PDF</button>
+                   <div style={{display: 'flex', gap: '6px'}}>
+                      <button 
+                        onClick={() => downloadPDF(p)}
+                        className="btn"
+                        style={{padding: '6px 12px', fontSize: '0.8rem', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '6px'}}
+                      >PDF</button>
+                      {user.role !== 'patient' && (
+                        <>
+                          <button 
+                            onClick={() => handleEdit(p)}
+                            className="btn"
+                            style={{padding: '6px 12px', fontSize: '0.8rem', background: '#f59e0b', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '6px'}}
+                          >Edit</button>
+                          <button 
+                            onClick={() => handleDelete(p._id)}
+                            className="btn"
+                            style={{padding: '6px 12px', fontSize: '0.8rem', background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '6px'}}
+                          >Del</button>
+                        </>
+                      )}
+                   </div>
                 </td>
               </tr>
             ))}
@@ -348,6 +419,29 @@ function Prescriptions() {
           .signature-box { border-bottom: 1.5px solid #0f172a; width: 180px; margin-bottom: 5px; }
         }
       `}</style>
+
+      {/* Custom Deletion Modal */}
+      {deleteId && (
+        <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}}>
+          <div className="fade-in" style={{background: 'white', padding: '30px', borderRadius: '16px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'}}>
+            <div style={{background: '#fee2e2', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px'}}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            </div>
+            <h3 style={{margin: '0 0 10px 0', fontSize: '1.25rem', color: '#0f172a'}}>Delete Prescription?</h3>
+            <p style={{margin: '0 0 24px 0', color: '#64748b', fontSize: '0.95rem'}}>This action cannot be undone. The medical record will be permanently removed.</p>
+            <div style={{display: 'flex', gap: '12px'}}>
+              <button 
+                onClick={() => setDeleteId(null)}
+                style={{flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', fontWeight: 600, cursor: 'pointer'}}
+              >Cancel</button>
+              <button 
+                onClick={confirmDelete}
+                style={{flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: '#ef4444', color: 'white', fontWeight: 600, cursor: 'pointer'}}
+              >Confirm Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {printingDoc && (
         <div className="print-prescription">

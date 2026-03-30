@@ -150,4 +150,20 @@ router.post('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /patients/{id}:
+ *   delete:
+ *     summary: Delete a patient by id
+ */
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedPatient = await Patient.findByIdAndDelete(req.params.id);
+        if (!deletedPatient) return res.status(404).json({ message: 'Patient not found' });
+        res.json({ message: 'Patient deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

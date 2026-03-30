@@ -25,13 +25,11 @@ for (const [path, target] of Object.entries(routes)) {
     createProxyMiddleware({
       target,
       changeOrigin: true,
-      // The default pathRewrite for app.use('/path', ...) is often needed 
-      // but let's ensure it doesn't strip query strings.
-      // actually, just removing pathRewrite often works best with app.use
-      // but if the service expects the full path, we keep it.
-      // Let's use a simpler approach that is known to work with query params.
       pathRewrite: {
-        [`^${path}`]: path, // Keep the path prefix when forwarding
+        '^': path, // Prepend the path back (e.g. /123 -> /doctors/123)
+      },
+      onProxyReq: (proxyReq, req, res) => {
+        console.log(`[Proxy] Forwarding ${req.method} ${req.url} -> ${target}${proxyReq.path}`);
       },
       onError: (err, req, res) => {
         console.error(`Proxy Error for ${path}:`, err.message);

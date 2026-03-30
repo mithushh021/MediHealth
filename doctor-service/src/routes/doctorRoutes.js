@@ -294,4 +294,20 @@ router.delete('/:id/busy-slots/:slotId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /doctors/{id}:
+ *   delete:
+ *     summary: Delete a doctor by id
+ */
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedDoctor = await Doctor.findByIdAndDelete(req.params.id);
+        if (!deletedDoctor) return res.status(404).json({ message: 'Doctor not found' });
+        res.json({ message: 'Doctor deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

@@ -6,110 +6,185 @@ Assignment 2 (Microservices Architecture)
 Year 4 Semester 2
 
 ## Project Executive Summary
-The MediHealth Clinical Portal is a comprehensive medical management system built using a Microservices Architecture. The purpose of this system is to provide a robust and scalable platform for managing patient records, medical appointments, clinical staff availability, and electronic prescriptions. The system ensures high data integrity, professional documentation output, and role based access control for administrators, doctors, and patients.
+The MediHealth Clinical Portal is a comprehensive medical management system built using a Microservices Architecture. The system provides a scalable and secure platform for managing patient records, medical appointments, clinical staff, and electronic prescriptions. It enforces role-based access control for three distinct user types: Administrator, Doctor, and Patient.
+
+---
+
+## System Architecture
+
+The solution uses the MERN stack (MongoDB, Express, React, Node.js) with a distributed microservices pattern. All frontend requests pass through a single API Gateway.
+
+| Service              | Port | Responsibility                                                   |
+|----------------------|------|------------------------------------------------------------------|
+| API Gateway          | 5000 | Central router — forwards all requests to the correct service    |
+| Patient Service      | 5001 | Patient identity and profile management                          |
+| Doctor Service       | 5002 | Clinical staff profiles, specialization, availability            |
+| Appointment Service  | 5003 | Scheduling, booking, and status management                       |
+| Prescription Service | 5004 | Electronic prescriptions, PDF generation, notifications          |
+| Frontend (React)     | 5173 | Unified UI for all roles                                         |
+
+---
 
 ## Project Component Directory
-To ensure absolute clarity during the evaluation process, the project is organized into the following specialized directories:
 
-1. api gateway: This folder contains the central routing logic that directs traffic from the frontend to the correct microservice.
-2. patient service: This folder contains the backend logic and database models for patient identity and profile management.
-3. doctor service: This folder contains the backend logic for managing medical staff profiles and clinical specializations.
-4. appointment service: This folder contains the orchestration logic for scheduling and managing clinical appointments.
-5. prescription service: This folder contains the clinical record management system and professional PDF generation logic.
-6. frontend: This folder contains the unified React application that provides the user interface for all system roles.
+| Folder                  | Description                                                                          |
+|-------------------------|--------------------------------------------------------------------------------------|
+| `api-gateway/`          | Central routing logic that directs frontend traffic to the correct microservice.     |
+| `patient-service/`      | Backend logic and database models for patient identity and profile management.       |
+| `doctor-service/`       | Backend logic for managing medical staff profiles and clinical specializations.      |
+| `appointment-service/`  | Orchestration logic for scheduling and managing clinical appointments.               |
+| `prescription-service/` | Clinical record management, electronic prescriptions, and PDF generation.            |
+| `frontend/`             | Unified React application providing the user interface for all system roles.         |
 
-## Core System Architecture
-The solution is built using the MERN stack (MongoDB, Express, React, and Node.js) and adheres to a distributed microservices pattern. 
+---
 
-1. API Gateway: Port 5000. Acts as the single entry point for all frontend requests, managing service discovery and port consolidation.
-2. Patient Service: Port 5001. Dedicated to patient identity and profile management.
-3. Doctor Service: Port 5002. Manages clinical staff attributes and medical specializations.
-4. Appointment Service: Port 5003. Orchestrates scheduling logic and temporal validation.
-5. Prescription Service: Port 5004. Handles clinical records, notifications, and PDF document generation.
-
-## Individual Group Contributions
+## Individual Group Contributions and CRUD Operations
 
 ### 1. Mithussh Pushparagavan (Lead)
-1. Domain Focus: Patient Management Microservice
-2. Backend Implementation: patient service logic, Patient model, and profile CRUD operations
-3. UI Implementation: patients management interface and global authentication context
-4. Technical Responsibility: Implementation of the API Gateway and unified service routing
+**Domain:** Patient Management Microservice + API Gateway
+
+| CRUD Operation | Performed By | Location in UI                                         |
+|----------------|--------------|--------------------------------------------------------|
+| **Create**     | Admin        | Patient Records page → "Register New Patient" form     |
+| **Read**       | Admin, Doctor| Patient Records page → searchable & filterable table   |
+| **Update**     | Admin        | Patient Records page → Edit (✏️) icon in the table     |
+| **Delete**     | Admin        | Patient Records page → Delete (🗑️) icon → Popup       |
+
+- **Backend Routes:** `patient-service/src/routes/patientRoutes.js`
+  - `GET /patients` — List all patients
+  - `GET /patients/:id` — Get patient by ID
+  - `POST /patients` — Register a new patient
+  - `PUT /patients/:id` — Update patient profile
+  - `DELETE /patients/:id` — Remove patient record
+- **Frontend:** `frontend/src/pages/Patients.jsx`
+- **Gateway:** `api-gateway/server.js` — Unified service routing
+
+---
 
 ### 2. Kajanthan Kirubakaran
-1. Domain Focus: Clinical Staff Microservice
-2. Backend Implementation: doctor service logic, Doctor model, and specialization indexing
-3. UI Implementation: clinical staff profiles and specialized search filtering
-4. Technical Responsibility: Implementation of role based authorization and portal access security
+**Domain:** Clinical Staff (Doctor) Microservice + Role-Based Authorization
+
+| CRUD Operation | Performed By | Location in UI                                              |
+|----------------|--------------|-------------------------------------------------------------|
+| **Create**     | Doctor       | Signup page — self-registration                             |
+| **Read**       | Admin        | Doctor Records page + Doctor Login Approval page            |
+| **Update**     | Admin        | Doctor Login Approval page → Approve/Revoke/Reset buttons   |
+| **Delete**     | Admin        | Doctor Login Approval page → Delete (🗑️) icon → Popup      |
+
+- **Backend Routes:** `doctor-service/src/routes/doctorRoutes.js`
+  - `GET /doctors` — List all doctors
+  - `GET /doctors/:id` — Get doctor by ID
+  - `POST /doctors` — Register a new doctor
+  - `PUT /doctors/:id` — Update doctor profile
+  - `PUT /doctors/:id/approve` — Toggle approval status
+  - `PUT /doctors/:id/reset-password` — Reset password to default
+  - `PUT /doctors/:id/availability` — Toggle availability
+  - `DELETE /doctors/:id` — Remove staff record
+- **Frontend:** `frontend/src/pages/Doctors.jsx` and `frontend/src/pages/UserManagement.jsx`
+
+---
 
 ### 3. Ashwin Visvanathan
-1. Domain Focus: Appointment Orchestration Microservice
-2. Backend Implementation: appointment service logic, Appointment model, and slot booking algorithms
-3. UI Implementation: unified dashboard schedule and booking modals
-4. Technical Responsibility: Implementation of temporal validation logic and data consistency controls
+**Domain:** Appointment Orchestration Microservice
+
+| CRUD Operation | Performed By | Location in UI                                              |
+|----------------|--------------|-------------------------------------------------------------|
+| **Create**     | Patient      | Appointment Records page → "Book Appointment" form          |
+| **Read**       | All roles    | Appointment Records page — filtered view by user role       |
+| **Update**     | Doctor       | Appointment Records page → Accept / Reject buttons          |
+| **Delete**     | Admin        | Appointment Records page → Cancel action                    |
+
+- **Backend Routes:** `appointment-service/src/routes/appointmentRoutes.js`
+  - `GET /appointments` — List all appointments
+  - `POST /appointments` — Book a new appointment
+  - `PUT /appointments/:id/status` — Accept or reject appointment
+  - `DELETE /appointments/:id` — Cancel appointment
+- **Frontend:** `frontend/src/pages/Appointments.jsx`
+
+---
 
 ### 4. Kanzurrizk Rihan
-1. Domain Focus: Clinical Documentation Microservice
-2. Backend Implementation: prescription service logic, Prescription model, and notification triggers
-3. UI Implementation: medical records management and professional print layouts
-4. Technical Responsibility: Implementation of high fidelity prescription generation and clinical notifications
+**Domain:** Clinical Documentation (Prescription) Microservice
+
+| CRUD Operation | Performed By      | Location in UI                                              |
+|----------------|-------------------|-------------------------------------------------------------|
+| **Create**     | Doctor / Admin    | Prescription Records page → "Issue Prescription" form       |
+| **Read**       | All roles         | Prescription Records page — Patient sees own records only   |
+| **Update**     | Doctor / Admin    | Prescription Records page → Edit button                     |
+| **Delete**     | Doctor / Admin    | Prescription Records page → Delete button → Popup           |
+
+- **Backend Routes:** `prescription-service/src/routes/prescriptionRoutes.js`
+  - `GET /prescriptions` — List all prescriptions
+  - `GET /prescriptions/:id` — Get by ID
+  - `GET /prescriptions/patient/:patientId` — Get by patient
+  - `POST /prescriptions` — Create prescription
+  - `PUT /prescriptions/:id` — Update prescription
+  - `PUT /prescriptions/:id/status` — Mark as Seen/New
+  - `DELETE /prescriptions/:id` — Delete prescription
+- **Frontend:** `frontend/src/pages/Prescriptions.jsx`
+
+---
 
 ## Demo Credentials
 
-### 1. Administrator Account
-1. Email: admin@medhealth.co
-2. Password: adMin#$92%gov
+| Role          | Email              | Password       |
+|---------------|--------------------|----------------|
+| Administrator | admin@medhealth.co | adMin#$92%gov  |
+| Doctor        | doc@med.com        | doc@123        |
+| Patient       | pat@med.com        | pat@1234       |
 
-### 2. Clinical Staff Account
-1. Email: doc@med.com
-2. Password: doc@123
+---
 
-### 3. Patient Account
-1. Email: pat@med.com
-2. Password: pat@1234
+## API Documentation (Swagger)
 
-## Technical Specifications and Documentation
-Each microservice is fully documented using the Swagger Open API Specification. The documentation can be accessed both natively and through the API Gateway.
+Each microservice is documented using the Swagger OpenAPI Specification.
 
-1. Native Patient API: localhost:5001/patients/api-docs
-2. Native Doctor API: localhost:5002/doctors/api-docs
-3. Native Appointment API: localhost:5003/appointments/api-docs
-4. Native Prescription API: localhost:5004/prescriptions/api-docs
+| Service      | URL                                          |
+|--------------|----------------------------------------------|
+| Patient API  | http://localhost:5001/patients/api-docs      |
+| Doctor API   | http://localhost:5002/doctors/api-docs       |
+| Appointment  | http://localhost:5003/appointments/api-docs  |
+| Prescription | http://localhost:5004/prescriptions/api-docs |
 
-All endpoints are also available through the unified Gateway interface on port 5000.
+All endpoints are also accessible through the unified Gateway at port `5000`.
 
-## System Execution and Deployment Guide
+---
 
-To ensure a successful deployment even if you are not a technical expert, please follow these exact steps. This project uses a Microservices Architecture, meaning the platform is powered by 6 independent components working together.
+## System Execution Guide
 
-### Step 1: Verification (Before you start)
-1. Critical Rule: Only run commands from the main "MediHealth" root folder. Do not enter the subfolders like "frontend" or "patient service" to run commands.
-2. Software: Ensure Node.js and MongoDB are installed on your computer.
+> **Important:** Always run commands from the root `MediHealth/` folder only. Never run commands inside a subfolder.
 
-### Step 2: One Click Installation
-To install the entire system at once, open your terminal in the main "MediHealth" folder and type:
+### Step 1: Prerequisites
+- Install **Node.js** from nodejs.org
+- Ensure **MongoDB** is installed and running locally on port `27017`
+
+### Step 2: Install All Dependencies (One-time only)
 ```bash
 npm run install:all
 ```
-1. What to expect: You will see a lot of text scrolling by for 1 to 2 minutes. 
-2. Success: The process is finished when the scrolling stops and you see your command prompt again.
+Wait for all packages to finish installing before proceeding.
 
-### Step 3: Launching the Platform
-After installation is finished, type this one command in the same terminal:
+### Step 3: Launch the Platform
 ```bash
 npm start
 ```
-1. What to expect: Your terminal will suddenly show many different colored labels (e.g., [gateway], [patient], [doctor]).
-2. Success Indicators: Wait until you see "Connected to MongoDB" and "Service is running" messages appearing for all components.
+Wait until you see `Connected to MongoDB` and `Service is running` messages for all 5 services.
 
-### Step 4: Accessing your Portal
-1. The Website: Once the terminal shows all services are running, open your web browser.
-2. The Link: Type http://localhost:5173 into the address bar and press Enter.
-3. Login: Use the Demo Credentials provided at the top of this document to enter the system.
+### Step 4: Access the Portal
+Open your browser and navigate to: **http://localhost:5173**
 
-### Troubleshooting Common Issues
-1. Issue: "npm is not recognized". Fix: You need to install Node.js from nodejs.org.
-2. Issue: "Connection error". Fix: Ensure your MongoDB application is open and running in the background.
-3. Issue: "Command failed". Fix: Ensure you are in the main "MediHealth" folder and not inside a subfolder.
+Use the Demo Credentials above to log in.
+
+### Troubleshooting
+
+| Issue | Fix |
+|---|---|
+| `npm is not recognized` | Install Node.js from nodejs.org |
+| `Connection error` | Ensure MongoDB is open and running |
+| `Command failed` | Ensure you are in the root `MediHealth/` folder |
+| `404 on API calls` | Ensure all 6 services started successfully |
+
+---
 
 ## Compliance and Standards
-The project maintains strict adherence to the assignment of IT4020 module. Any use of external libraries is documented within the project package files.
+This project adheres to the IT4020 module requirements. All external libraries are documented within the respective `package.json` files inside each service directory.

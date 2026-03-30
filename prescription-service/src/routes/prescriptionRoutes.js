@@ -204,4 +204,36 @@ router.put('/:id/status', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /prescriptions/{id}:
+ *   put:
+ *     summary: Update a prescription
+ */
+router.put('/:id', async (req, res) => {
+    try {
+        const updated = await Prescription.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updated) return res.status(404).json({ message: 'Prescription not found' });
+        res.json(updated);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /prescriptions/{id}:
+ *   delete:
+ *     summary: Delete a prescription
+ */
+router.delete('/:id', async (req, res) => {
+    try {
+        const deleted = await Prescription.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ message: 'Prescription not found' });
+        res.json({ message: 'Prescription deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;
