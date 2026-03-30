@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Activity, Mail, Lock, Loader2 } from 'lucide-react';
+import { Activity, Mail, Lock, Loader2, Network, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 function Login() {
@@ -89,6 +89,23 @@ function Login() {
           <img src="/src/assets/icon.png" alt="MediHealth Logo" style={{width: '80px', height: '80px', marginBottom: '20px', borderRadius: '15px', boxShadow: '0 8px 16px rgba(0,0,0,0.15)'}} />
           <h2>MediHealth</h2>
           <p>Access your healthcare portal securely from any device.</p>
+          <Link
+            to="/gateway-demo"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '10px',
+              marginTop: '24px', padding: '12px 24px',
+              background: 'linear-gradient(135deg, #1d4ed8, #6d28d9)',
+              color: 'white', textDecoration: 'none', borderRadius: '12px',
+              fontWeight: 700, fontSize: '0.9rem',
+              boxShadow: '0 4px 15px rgba(37,99,235,0.4)',
+              transition: 'opacity 0.2s', border: '1px solid rgba(255,255,255,0.1)'
+            }}
+          >
+            <Network size={18} /> API Gateway Demo
+            <span style={{ fontSize: '0.75rem', opacity: 0.8, fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+            <ExternalLink size={12} />
+            </span>
+          </Link>
         </div>
         
         <div className="login-card">

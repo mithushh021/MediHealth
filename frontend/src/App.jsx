@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import Signup from './pages/Signup';
 import UserManagement from './pages/UserManagement';
 import ResetPassword from './pages/ResetPassword';
+import GatewayDemo from './pages/GatewayDemo';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
 
@@ -32,6 +33,7 @@ function AppLayout() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/gateway-demo" element={<GatewayDemo />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
