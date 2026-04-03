@@ -146,6 +146,9 @@ router.post('/', async (req, res) => {
         const newPatient = await patient.save();
         res.status(201).json(newPatient);
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'Error: An account with this email already exists.' });
+        }
         res.status(400).json({ message: error.message });
     }
 });

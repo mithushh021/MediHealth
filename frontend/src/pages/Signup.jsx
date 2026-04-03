@@ -84,9 +84,15 @@ function Signup() {
       }
       navigate('/login');
     } catch (err) {
-      console.error("Signup Error:", err);
-      setError(err.message);
-      toast.error(`Registration Failed: ${err.message}`);
+      let displayMsg = err.message;
+      if (displayMsg.includes('E11000') || displayMsg.includes('duplicate key')) {
+        displayMsg = 'An account with this email already exists. Please Sign In or use a different email.';
+      } else if (displayMsg.includes('Failed to fetch')) {
+        displayMsg = 'Connection to the server failed. Please ensure the backend is running.';
+      }
+
+      setError(displayMsg);
+      toast.error(displayMsg);
     } finally {
       setLoading(false);
     }

@@ -13,6 +13,8 @@
     "install:all": "npm install && cd api-gateway && npm install && cd ../patient-service && npm install && cd ../doctor-service && npm install && cd ../appointment-service && npm install && cd ../prescription-service && npm install && cd ../frontend && npm install"
   },
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "dotenv": "^17.4.0",
+    "mongoose": "^9.3.3"
   }
 }
